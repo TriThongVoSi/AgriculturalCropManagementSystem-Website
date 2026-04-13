@@ -9,9 +9,9 @@ CREATE INDEX IF NOT EXISTS idx_plot_farm_id ON plot(farm_id);
 CREATE INDEX IF NOT EXISTS idx_season_plot_id ON season(plot_id);
 
 -- Composite index for unique constraint check on active farms
--- Speeds up: SELECT ... FROM farm WHERE owner_id = ? AND name = ? AND active = true
+-- Speeds up: SELECT ... FROM farm WHERE user_id = ? AND name = ? AND active = true
 -- Note: This index helps with the critical bug fix - checking name uniqueness only among active farms
-CREATE INDEX IF NOT EXISTS idx_farm_owner_name_active ON farm(owner_id, name, active);
+CREATE INDEX IF NOT EXISTS idx_farm_user_name_active ON farm(user_id, name, active);
 
 -- Notes:
 -- 1. These indexes significantly improve query performance for farm deletion/restoration operations

@@ -1,15 +1,16 @@
 package org.example.QuanLyMuaVu.controller;
 
-import org.example.QuanLyMuaVu.Controller.CropController;
-import org.example.QuanLyMuaVu.DTO.Request.CropRequest;
-import org.example.QuanLyMuaVu.DTO.Response.CropResponse;
-import org.example.QuanLyMuaVu.Service.CropService;
+import org.example.QuanLyMuaVu.module.cropcatalog.controller.CropController;
+import org.example.QuanLyMuaVu.module.cropcatalog.dto.request.CropRequest;
+import org.example.QuanLyMuaVu.module.cropcatalog.dto.response.CropResponse;
+import org.example.QuanLyMuaVu.module.cropcatalog.service.CropService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -30,6 +31,7 @@ class CropControllerTest {
     private CropService cropService;
 
     @Test
+    @WithMockUser(roles = "FARMER")
     void list_returnsCrops() throws Exception {
         when(cropService.getAll()).thenReturn(List.of(
                 CropResponse.builder().id(1).cropName("Rice").build(),
@@ -42,3 +44,4 @@ class CropControllerTest {
                 .andExpect(jsonPath("$.result[0].cropName").value("Rice"));
     }
 }
+

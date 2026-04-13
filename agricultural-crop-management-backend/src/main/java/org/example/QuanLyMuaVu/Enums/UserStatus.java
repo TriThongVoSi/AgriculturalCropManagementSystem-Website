@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * Status of a system user (ADMIN/FARMER/BUYER).
+ * Status of a system user (FARMER/BUYER).
  */
 public enum UserStatus {
 
@@ -47,4 +47,3 @@ public enum UserStatus {
         return this.code;
     }
 }
-

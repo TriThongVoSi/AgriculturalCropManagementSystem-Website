@@ -1,12 +1,13 @@
 package org.example.QuanLyMuaVu.controller;
 
+import org.example.QuanLyMuaVu.module.farm.entity.Farm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.QuanLyMuaVu.DTO.Request.AuthenticationRequest;
-import org.example.QuanLyMuaVu.Entity.Role;
-import org.example.QuanLyMuaVu.Entity.User;
+import org.example.QuanLyMuaVu.module.identity.dto.request.AuthenticationRequest;
+import org.example.QuanLyMuaVu.module.identity.entity.Role;
+import org.example.QuanLyMuaVu.module.identity.entity.User;
 import org.example.QuanLyMuaVu.Enums.UserStatus;
-import org.example.QuanLyMuaVu.Repository.RoleRepository;
-import org.example.QuanLyMuaVu.Repository.UserRepository;
+import org.example.QuanLyMuaVu.module.identity.repository.RoleRepository;
+import org.example.QuanLyMuaVu.module.identity.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,7 +65,7 @@ public class AuthenticationControllerIntegrationTest {
         private User lockedUser;
         private User userWithoutRoles;
         private Role farmerRole;
-        private Role adminRole;
+        private Role buyerRole;
         private static final String TEST_PASSWORD = "testPassword123";
 
         @BeforeEach
@@ -77,11 +78,11 @@ public class AuthenticationControllerIntegrationTest {
                                                 .description("Farm owner")
                                                 .build()));
 
-                adminRole = roleRepository.findByCode("ADMIN")
+                buyerRole = roleRepository.findByCode("BUYER")
                                 .orElseGet(() -> roleRepository.save(Role.builder()
-                                                .code("ADMIN")
-                                                .name("Administrator")
-                                                .description("System administrator")
+                                                .code("BUYER")
+                                                .name("Buyer")
+                                                .description("Buyer user")
                                                 .build()));
 
                 // Create test users
@@ -102,7 +103,7 @@ public class AuthenticationControllerIntegrationTest {
                                 .password(passwordEncoder.encode(TEST_PASSWORD))
                                 .fullName("Locked Test User")
                                 .phone("0900000002")
-                                .status(UserStatus.INACTIVE)
+                                .status(UserStatus.LOCKED)
                                 .roles(new HashSet<>(Set.of(farmerRole)))
                                 .build();
                 lockedUser = userRepository.saveAndFlush(lockedUser);
@@ -253,22 +254,21 @@ public class AuthenticationControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("Admin user gets role=ADMIN and redirectTo=/admin")
-        void testAdminUserRedirect() throws Exception {
-                // Create admin user
-                User adminUser = User.builder()
-                                .username("test_admin_user")
-                                .email("admin@test.local")
+        @DisplayName("Buyer user gets role=BUYER and redirectTo=/buyer")
+        void testBuyerUserRedirect() throws Exception {
+                User buyerUser = User.builder()
+                                .username("test_buyer_user")
+                                .email("buyer@test.local")
                                 .password(passwordEncoder.encode(TEST_PASSWORD))
-                                .fullName("Admin Test User")
+                                .fullName("Buyer Test User")
                                 .phone("0900000004")
                                 .status(UserStatus.ACTIVE)
-                                .roles(new HashSet<>(Set.of(adminRole)))
+                                .roles(new HashSet<>(Set.of(buyerRole)))
                                 .build();
-                adminUser = userRepository.saveAndFlush(adminUser);
+                buyerUser = userRepository.saveAndFlush(buyerUser);
 
                 AuthenticationRequest request = AuthenticationRequest.builder()
-                                .identifier(adminUser.getEmail())
+                                .identifier(buyerUser.getEmail())
                                 .password(TEST_PASSWORD)
                                 .build();
 
@@ -276,14 +276,13 @@ public class AuthenticationControllerIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.result.role").value("ADMIN"))
-                                .andExpect(jsonPath("$.result.redirectTo").value("/admin"));
+                                .andExpect(jsonPath("$.result.role").value("BUYER"))
+                                .andExpect(jsonPath("$.result.redirectTo").value("/buyer"));
         }
 
         @Test
-        @DisplayName("User with multiple roles gets ADMIN as primary (ADMIN preferred)")
-        void testMultipleRolesPreferAdmin() throws Exception {
-                // Create user with both roles
+        @DisplayName("User with multiple roles gets FARMER as primary (FARMER preferred)")
+        void testMultipleRolesPreferFarmer() throws Exception {
                 User multiRoleUser = User.builder()
                                 .username("test_multi_role_user")
                                 .email("multirole@test.local")
@@ -291,7 +290,7 @@ public class AuthenticationControllerIntegrationTest {
                                 .fullName("Multi Role Test User")
                                 .phone("0900000005")
                                 .status(UserStatus.ACTIVE)
-                                .roles(new HashSet<>(Set.of(adminRole, farmerRole)))
+                                .roles(new HashSet<>(Set.of(buyerRole, farmerRole)))
                                 .build();
                 multiRoleUser = userRepository.saveAndFlush(multiRoleUser);
 
@@ -304,8 +303,8 @@ public class AuthenticationControllerIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.result.role").value("ADMIN"))
-                                .andExpect(jsonPath("$.result.redirectTo").value("/admin"))
-                                .andExpect(jsonPath("$.result.roles", hasItems("ADMIN", "FARMER")));
+                                .andExpect(jsonPath("$.result.role").value("FARMER"))
+                                .andExpect(jsonPath("$.result.redirectTo").value("/farmer"))
+                                .andExpect(jsonPath("$.result.roles", hasItems("BUYER", "FARMER")));
         }
 }

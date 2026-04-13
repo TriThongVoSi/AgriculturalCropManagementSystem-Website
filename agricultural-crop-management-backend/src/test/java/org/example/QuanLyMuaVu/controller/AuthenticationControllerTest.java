@@ -1,12 +1,12 @@
 package org.example.QuanLyMuaVu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.QuanLyMuaVu.DTO.Request.AuthenticationRequest;
-import org.example.QuanLyMuaVu.Entity.Role;
-import org.example.QuanLyMuaVu.Entity.User;
+import org.example.QuanLyMuaVu.module.identity.dto.request.AuthenticationRequest;
+import org.example.QuanLyMuaVu.module.identity.entity.Role;
+import org.example.QuanLyMuaVu.module.identity.entity.User;
 import org.example.QuanLyMuaVu.Enums.UserStatus;
-import org.example.QuanLyMuaVu.Repository.RoleRepository;
-import org.example.QuanLyMuaVu.Repository.UserRepository;
+import org.example.QuanLyMuaVu.module.identity.repository.RoleRepository;
+import org.example.QuanLyMuaVu.module.identity.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -111,7 +111,7 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("ERR_INVALID_CREDENTIALS"));
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
     }
 
     @Test
@@ -127,7 +127,7 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("ERR_INVALID_CREDENTIALS"));
+                .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
     }
 
     @Test

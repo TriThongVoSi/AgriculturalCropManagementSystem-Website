@@ -1,6 +1,0 @@
-{
-  "status": 401,
-  "code": "ERR_INVALID_CREDENTIALS",
-  "message": "Invalid username or password",
-  "result": null
-}

@@ -12,6 +12,10 @@ public enum ErrorCode {
 
         INTERNAL_SERVER_ERROR("ERR_INTERNAL_SERVER_ERROR", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
         BAD_REQUEST("ERR_BAD_REQUEST", "Bad request", HttpStatus.BAD_REQUEST),
+        LEGACY_NUTRIENT_INPUT_DEPRECATED(
+                "ERR_LEGACY_NUTRIENT_INPUT_DEPRECATED",
+                "Legacy nutrient input source is deprecated. Use dedicated irrigation-water-analysis or soil-test endpoints.",
+                HttpStatus.BAD_REQUEST),
         UNAUTHORIZED("ERR_UNAUTHORIZED", "Unauthorized", HttpStatus.UNAUTHORIZED),
         FORBIDDEN("ERR_FORBIDDEN", "Forbidden", HttpStatus.FORBIDDEN),
         RESOURCE_NOT_FOUND("ERR_RESOURCE_NOT_FOUND", "Resource not found", HttpStatus.NOT_FOUND),
@@ -22,14 +26,20 @@ public enum ErrorCode {
         USERNAME_BLANK("ERR_USERNAME_BLANK", "Username must not be blank", HttpStatus.BAD_REQUEST),
         PASSWORD_BLANK("ERR_PASSWORD_BLANK", "Password must not be blank", HttpStatus.BAD_REQUEST),
         PASSWORD_INVALID("ERR_PASSWORD_INVALID", "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
+        PASSWORD_MISMATCH("ERR_PASSWORD_MISMATCH", "Password confirmation does not match", HttpStatus.BAD_REQUEST),
+        PASSWORD_RESET_TOKEN_INVALID("ERR_PASSWORD_RESET_TOKEN_INVALID",
+                        "Reset token is invalid or expired", HttpStatus.BAD_REQUEST),
 
         USER_NOT_FOUND("ERR_USER_NOT_FOUND", "User not found", HttpStatus.NOT_FOUND),
         USER_EXISTED("ERR_USER_EXISTED", "User already exists", HttpStatus.BAD_REQUEST),
         USER_NOT_EXISTED("ERR_USER_NOT_EXISTED", "User does not exist", HttpStatus.NOT_FOUND),
         USERNAME_ALREADY_EXISTS("ERR_USERNAME_ALREADY_EXISTS", "Username is already in use", HttpStatus.CONFLICT),
+        EMAIL_ALREADY_EXISTS("ERR_EMAIL_ALREADY_EXISTS", "Email is already in use", HttpStatus.CONFLICT),
         INVALID_CREDENTIALS("INVALID_CREDENTIALS", "Invalid username/email or password.", HttpStatus.UNAUTHORIZED),
-        USER_INACTIVE("ERR_USER_INACTIVE", "User account is inactive or blocked", HttpStatus.FORBIDDEN),
-        USER_LOCKED("USER_LOCKED", "User account is not active.", HttpStatus.FORBIDDEN),
+        USER_INACTIVE("ERR_USER_INACTIVE", "Your account has been deactivated. Please contact administrator.", HttpStatus.FORBIDDEN),
+        USER_LOCKED("USER_LOCKED", "Your account has been locked by administrator. Please contact support for assistance.", HttpStatus.FORBIDDEN),
+        USER_HAS_ASSOCIATED_DATA("ERR_USER_HAS_ASSOCIATED_DATA", "Cannot delete user with associated farms or data",
+                        HttpStatus.CONFLICT),
         ROLE_MISSING("ROLE_MISSING", "User has no assigned role.", HttpStatus.FORBIDDEN),
         NOT_OWNER("NOT_OWNER", "Access denied: you do not own this resource.", HttpStatus.FORBIDDEN),
         IDENTIFIER_REQUIRED("IDENTIFIER_REQUIRED", "Email or username is required for login.", HttpStatus.BAD_REQUEST),
@@ -71,11 +81,17 @@ public enum ErrorCode {
                         HttpStatus.BAD_REQUEST),
         SEASON_HAS_CHILD_RECORDS("ERR_SEASON_HAS_CHILD_RECORDS",
                         "Cannot delete season with related harvests, expenses or sales", HttpStatus.BAD_REQUEST),
+        SEASON_REPORT_REQUIRES_HARVEST_COMPLETED("ERR_SEASON_REPORT_REQUIRES_HARVEST_COMPLETED",
+                        "Reports are available only for seasons that have finished harvesting 100%",
+                        HttpStatus.BAD_REQUEST),
 
         // Harvest errors
         HARVEST_NOT_FOUND("ERR_HARVEST_NOT_FOUND", "Harvest not found", HttpStatus.NOT_FOUND),
         INVALID_HARVEST_QUANTITY("ERR_INVALID_HARVEST_QUANTITY", "Invalid harvest quantity", HttpStatus.BAD_REQUEST),
         HARVEST_DATE_BEFORE_PLANTING("ERR_HARVEST_DATE_BEFORE_PLANTING", "Harvest date cannot be before planting date",
+                        HttpStatus.BAD_REQUEST),
+        HARVEST_ALREADY_RECEIVED_TO_PRODUCT_WAREHOUSE("ERR_HARVEST_ALREADY_RECEIVED_TO_PRODUCT_WAREHOUSE",
+                        "Harvest has already been received into product warehouse and cannot be edited",
                         HttpStatus.BAD_REQUEST),
 
         // Task / field log / expense / quality errors (season operations)
@@ -89,6 +105,16 @@ public enum ErrorCode {
                         HttpStatus.BAD_REQUEST),
         SEASON_CLOSED_CANNOT_MODIFY_TASK("ERR_SEASON_CLOSED_CANNOT_MODIFY_TASK", "Cannot modify task of closed season",
                         HttpStatus.BAD_REQUEST),
+        EMPLOYEE_ROLE_REQUIRED("ERR_EMPLOYEE_ROLE_REQUIRED", "Selected user must have EMPLOYEE role",
+                        HttpStatus.BAD_REQUEST),
+        SEASON_EMPLOYEE_NOT_FOUND("ERR_SEASON_EMPLOYEE_NOT_FOUND", "Employee is not registered in this season",
+                        HttpStatus.NOT_FOUND),
+        SEASON_EMPLOYEE_ALREADY_EXISTS("ERR_SEASON_EMPLOYEE_ALREADY_EXISTS",
+                        "Employee already exists in this season",
+                        HttpStatus.CONFLICT),
+        TASK_NOT_ASSIGNED_TO_EMPLOYEE("ERR_TASK_NOT_ASSIGNED_TO_EMPLOYEE",
+                        "Task is not assigned to the current employee",
+                        HttpStatus.FORBIDDEN),
 
         FIELD_LOG_NOT_FOUND("ERR_FIELD_LOG_NOT_FOUND", "Field log not found", HttpStatus.NOT_FOUND),
         INVALID_LOG_TYPE("ERR_INVALID_LOG_TYPE",
@@ -126,6 +152,20 @@ public enum ErrorCode {
         WAREHOUSE_NOT_FOUND("ERR_WAREHOUSE_NOT_FOUND", "Warehouse not found", HttpStatus.NOT_FOUND),
         LOCATION_NOT_FOUND("ERR_LOCATION_NOT_FOUND", "Stock location not found", HttpStatus.NOT_FOUND),
         SUPPLY_LOT_NOT_FOUND("ERR_SUPPLY_LOT_NOT_FOUND", "Supply lot not found", HttpStatus.NOT_FOUND),
+        PRODUCT_WAREHOUSE_LOT_NOT_FOUND("ERR_PRODUCT_WAREHOUSE_LOT_NOT_FOUND", "Product warehouse lot not found",
+                        HttpStatus.NOT_FOUND),
+        PRODUCT_WAREHOUSE_RECEIPT_DUPLICATE("ERR_PRODUCT_WAREHOUSE_RECEIPT_DUPLICATE",
+                        "Product warehouse receipt already exists for this harvest", HttpStatus.CONFLICT),
+        PRODUCT_WAREHOUSE_INVALID_UNIT("ERR_PRODUCT_WAREHOUSE_INVALID_UNIT",
+                        "Invalid unit for product warehouse lot", HttpStatus.BAD_REQUEST),
+        PRODUCT_WAREHOUSE_INVALID_QUANTITY("ERR_PRODUCT_WAREHOUSE_INVALID_QUANTITY",
+                        "Quantity must be greater than 0", HttpStatus.BAD_REQUEST),
+        PRODUCT_WAREHOUSE_LOCATION_MISMATCH("ERR_PRODUCT_WAREHOUSE_LOCATION_MISMATCH",
+                        "Location does not belong to selected warehouse", HttpStatus.BAD_REQUEST),
+        PRODUCT_WAREHOUSE_FARM_MISMATCH("ERR_PRODUCT_WAREHOUSE_FARM_MISMATCH",
+                        "Selected farm data is inconsistent across season/plot/warehouse", HttpStatus.BAD_REQUEST),
+        PRODUCT_WAREHOUSE_NO_OUTPUT_WAREHOUSE("ERR_PRODUCT_WAREHOUSE_NO_OUTPUT_WAREHOUSE",
+                        "No warehouse available to receive harvested products", HttpStatus.BAD_REQUEST),
 
         // Supplies errors
         SUPPLIER_NOT_FOUND("ERR_SUPPLIER_NOT_FOUND", "Supplier not found", HttpStatus.NOT_FOUND),
@@ -144,6 +184,12 @@ public enum ErrorCode {
         CANNOT_DELETE_RESOLVED_INCIDENT("ERR_CANNOT_DELETE_RESOLVED_INCIDENT", "Cannot delete a resolved incident",
                         HttpStatus.BAD_REQUEST),
         INVALID_DEADLINE("ERR_INVALID_DEADLINE", "Deadline must be today or in the future", HttpStatus.BAD_REQUEST),
+        OPTIMISTIC_LOCK_ERROR("ERR_OPTIMISTIC_LOCK_ERROR",
+                        "Concurrent modification detected. Please refresh and try again.", HttpStatus.CONFLICT),
+
+        // Season Admin Business Rules
+        SEASON_COMPLETION_REQUIRES_YIELD_AND_DATE("ERR_SEASON_COMPLETION_REQUIRES_YIELD_AND_DATE",
+                        "End date and actual yield are required when completing a season", HttpStatus.BAD_REQUEST),
 
         // Season Business Rules (BR8/BR12)
         SEASON_NAME_EXISTS_IN_PLOT("ERR_SEASON_NAME_EXISTS_IN_PLOT",

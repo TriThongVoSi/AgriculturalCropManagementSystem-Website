@@ -1,6 +1,8 @@
 package org.example.QuanLyMuaVu.Exception;
 
 import jakarta.validation.ConstraintViolation;
+import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.example.QuanLyMuaVu.DTO.Common.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.Map;
-import java.util.Objects;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
@@ -38,6 +38,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse<Object>> handlingAccessDeniedException(AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.FORBIDDEN;
+        ApiResponse<Object> apiResponse = ApiResponse.error(errorCode.getStatusCode(), errorCode.getCode(),
+                errorCode.getMessage());
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = NoResourceFoundException.class)
+    ResponseEntity<ApiResponse<Object>> handlingNoResourceFoundException(NoResourceFoundException exception) {
+        ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
         ApiResponse<Object> apiResponse = ApiResponse.error(errorCode.getStatusCode(), errorCode.getCode(),
                 errorCode.getMessage());
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
